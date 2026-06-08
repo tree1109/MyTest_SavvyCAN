@@ -49,20 +49,15 @@ void MyFakeCan::piStarted()
 {
     qDebug() << "MyFakeCon: " << "Connecting...";
 
-    if (m_pTimer == nullptr) {
-        m_pTimer = createTimer();
-        connect(m_pTimer, &QTimer::timeout, this, &MyFakeCan::generateFakeFrame);
-    }
-    m_pTimer->start();
+    initTimer();
+    startTimer();
 }
 
 void MyFakeCan::piStop()
 {
     disconnectDevice();
 
-    if (m_pTimer) {
-        m_pTimer->stop();
-    }
+    stopTimer();
 }
 
 void MyFakeCan::piSetBusSettings(int pBusIdx, CANBus pBus)
@@ -116,7 +111,7 @@ void MyFakeCan::disconnectDevice()
     emit status(stats);
 }
 
-void MyFakeCan::generateFakeFrame()
+void MyFakeCan::generateFakeBodyFrame()
 {
     /* drop frame if capture is suspended */
     if(isCapSuspended())
@@ -125,16 +120,28 @@ void MyFakeCan::generateFakeFrame()
     CommFrame* frame_p = getQueue().get();
     if(frame_p)
     {
+        // Fake data.
         QByteArray fakePayload;
-        fakePayload.append(0xF0);
-        fakePayload.append(0xF0);
-        fakePayload.append(0xF0);
-        fakePayload.append(0xF0);
+        {
+            const double weightF = 100 + 25 * std::cos(getElapsedSecond() / 5);
+            const double heightF = 100 + 50 * std::sin(getElapsedSecond() / 10);
+            const double temperatureF = std::fmod(getElapsedSecond(), 100) * 100;
+            const uint16_t weight = static_cast<uint16_t>(weightF);
+            const uint16_t height = static_cast<uint16_t>(heightF);
+            const uint16_t temperature = static_cast<uint16_t>(temperatureF);
+
+            fakePayload.append(weight & 0x00FF);
+            fakePayload.append((weight & 0xFF00) >> 8);
+            fakePayload.append(height & 0x00FF);
+            fakePayload.append((height & 0xFF00) >> 8);
+            fakePayload.append(temperature & 0x00FF);
+            fakePayload.append((temperature & 0xFF00) >> 8);
+        }
 
         frame_p->setPayload(fakePayload);
         frame_p->setBus(0);
         frame_p->setExtendedFrameFormat(0);
-        frame_p->setFrameId(0x0CF004FE);
+        frame_p->setFrameId(100);
         frame_p->setFrameType(CommFrame::CANDataFrame);
         frame_p->setReceived(true);
         frame_p->setTimeStamp(CommFrame::TimeStamp::fromMicroSeconds(QDateTime::currentMSecsSinceEpoch()));
@@ -143,8 +150,42 @@ void MyFakeCan::generateFakeFrame()
 
         /* enqueue frame */
         getQueue().queue();
+    }
+}
 
-        sendDebug("Fake frame generated!");
+void MyFakeCan::generateFakeHeadFrame()
+{
+    /* drop frame if capture is suspended */
+    if(isCapSuspended())
+        return;
+
+    CommFrame* frame_p = getQueue().get();
+    if(frame_p)
+    {
+        // Fake data.
+        QByteArray fakePayload;
+        {
+            const double temperatureF = std::fmod(getElapsedSecond(), 60) / 60 * 1000 * 60;
+            const uint32_t temperature = static_cast<uint32_t>(temperatureF);
+
+            fakePayload.append(temperature & 0xFF);
+            fakePayload.append((temperature & 0xFF << 8) >> 8);
+            fakePayload.append((temperature & 0xFF << 16) >> 16);
+            fakePayload.append((temperature & 0xFF << 24) >> 24);
+        }
+
+        frame_p->setPayload(fakePayload);
+        frame_p->setBus(0);
+        frame_p->setExtendedFrameFormat(0);
+        frame_p->setFrameId(200);
+        frame_p->setFrameType(CommFrame::CANDataFrame);
+        frame_p->setReceived(true);
+        frame_p->setTimeStamp(CommFrame::TimeStamp::fromMicroSeconds(QDateTime::currentMSecsSinceEpoch()));
+
+        checkTargettedFrame(*frame_p);
+
+        /* enqueue frame */
+        getQueue().queue();
     }
 }
 
@@ -154,10 +195,45 @@ void MyFakeCan::sendDebug(const QString debugText)
     debugOutput(debugText);
 }
 
-QTimer *MyFakeCan::createTimer()
+void MyFakeCan::initTimer()
 {
-    QTimer* pTimer = new QTimer();
-    pTimer->setInterval(100); //tick every 0.1 seconds
-    pTimer->setSingleShot(false); //keep ticking
-    return pTimer;
+    if (m_pFakeBodyMessageTimer == nullptr) {
+        m_pFakeBodyMessageTimer = new QTimer();
+        m_pFakeBodyMessageTimer->setInterval(1000 / 33); // 33 hz
+        m_pFakeBodyMessageTimer->setSingleShot(false); //keep ticking
+        connect(m_pFakeBodyMessageTimer, &QTimer::timeout, this, &MyFakeCan::generateFakeBodyFrame);
+    }
+
+    if (m_pFakeHeadMessageTimer == nullptr) {
+        m_pFakeHeadMessageTimer = new QTimer();
+        m_pFakeHeadMessageTimer->setInterval(1000 / 100); // 100 hz
+        m_pFakeHeadMessageTimer->setSingleShot(false); //keep ticking
+        connect(m_pFakeHeadMessageTimer, &QTimer::timeout, this, &MyFakeCan::generateFakeHeadFrame);
+    }
+
+    if (m_pElapsedTimer != nullptr) {
+        m_pElapsedTimer->restart();
+    }
+    else {
+        m_pElapsedTimer = new QElapsedTimer();
+        m_pElapsedTimer->start();
+    }
+}
+
+void MyFakeCan::startTimer()
+{
+    if (m_pFakeBodyMessageTimer) m_pFakeBodyMessageTimer->start();
+    if (m_pFakeHeadMessageTimer) m_pFakeHeadMessageTimer->start();
+}
+
+void MyFakeCan::stopTimer()
+{
+    if (m_pFakeBodyMessageTimer) m_pFakeBodyMessageTimer->stop();
+    if (m_pFakeHeadMessageTimer) m_pFakeHeadMessageTimer->stop();
+}
+
+double MyFakeCan::getElapsedSecond() const
+{
+    if (!m_pElapsedTimer) return 0;
+    return m_pElapsedTimer->nsecsElapsed() * 10e-9;
 }
