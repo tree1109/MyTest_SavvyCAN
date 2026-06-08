@@ -94,6 +94,7 @@ SOURCES += main.cpp\
     re/newgraphdialog.cpp \
     bisectwindow.cpp \
     signalviewerwindow.cpp \
+    bus_protocols/handler_factory.cpp \
     bus_protocols/isotp_handler.cpp \
     bus_protocols/j1939_handler.cpp \
     bus_protocols/uds_handler.cpp \
@@ -189,6 +190,7 @@ HEADERS  += mainwindow.h \
     re/newgraphdialog.h \
     bisectwindow.h \
     signalviewerwindow.h \
+    bus_protocols/handler_factory.h \
     bus_protocols/isotp_handler.h \
     bus_protocols/j1939_handler.h \
     bus_protocols/uds_handler.h \
