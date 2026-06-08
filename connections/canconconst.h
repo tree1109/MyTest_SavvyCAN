@@ -23,6 +23,7 @@ namespace CANCon {
         LAWICEL,
         CANSERVER,
         CANLOGSERVER,
+        MY_FAKE_CAN,
         NONE
     };
 }

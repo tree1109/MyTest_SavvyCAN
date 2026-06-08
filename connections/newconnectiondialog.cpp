@@ -30,6 +30,7 @@ NewConnectionDialog::NewConnectionDialog(QVector<QString>* gvretips, QVector<QSt
     connect(ui->rbLawicel, &QAbstractButton::clicked, this, &NewConnectionDialog::handleConnTypeChanged);
     connect(ui->rbCANserver, &QAbstractButton::clicked, this, &NewConnectionDialog::handleConnTypeChanged);
     connect(ui->rbCanlogserver, &QAbstractButton::clicked, this, &NewConnectionDialog::handleConnTypeChanged);
+    connect(ui->rbMyFakeCan, &QAbstractButton::clicked, this, &NewConnectionDialog::handleConnTypeChanged);
 
     connect(ui->cbDeviceType, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &NewConnectionDialog::handleDeviceTypeChanged);
     connect(ui->btnOK, &QPushButton::clicked, this, &NewConnectionDialog::handleCreateButton);
@@ -70,6 +71,7 @@ void NewConnectionDialog::handleConnTypeChanged()
     if (ui->rbMQTT->isChecked()) selectMQTT();
     if (ui->rbCANserver->isChecked()) selectCANserver();
     if (ui->rbCanlogserver->isChecked()) selectCANlogserver();
+    if (ui->rbMyFakeCan->isChecked()) selectMyFakeCan();
 }
 
 void NewConnectionDialog::handleDeviceTypeChanged()
@@ -270,6 +272,23 @@ void NewConnectionDialog::selectCANlogserver()
     ui->cbPort->clear();
 }
 
+void NewConnectionDialog::selectMyFakeCan()
+{
+    ui->lPort->setText("MyFakeCan Listen Port:");
+
+    ui->lblDeviceType->setHidden(true);
+    ui->cbDeviceType->setHidden(true);
+    ui->cbCANSpeed->setHidden(true);
+    ui->cbSerialSpeed->setHidden(true);
+    ui->lblCANSpeed->setHidden(true);
+    ui->lblSerialSpeed->setHidden(true);
+    ui->cbCanFd->setHidden(true);
+    ui->cbDataRate->setHidden(true);
+    ui->lblDataRate->setHidden(true);
+
+    ui->cbPort->clear();
+}
+
 void NewConnectionDialog::setPortName(CANCon::type pType, QString pPortName, QString pDriver)
 {
 
@@ -294,11 +313,14 @@ void NewConnectionDialog::setPortName(CANCon::type pType, QString pPortName, QSt
             ui->rbLawicel->setChecked(true);
             break;
         case CANCon::CANSERVER:
-          ui->rbCANserver->setChecked(true);
-          break;
+            ui->rbCANserver->setChecked(true);
+            break;
         case CANCon::CANLOGSERVER:
-          ui->rbCanlogserver->setChecked(true);
-          break;
+            ui->rbCanlogserver->setChecked(true);
+            break;
+        case CANCon::MY_FAKE_CAN:
+            ui->rbMyFakeCan->setChecked(true);
+            break;
         default: {}
     }
 
@@ -348,6 +370,15 @@ void NewConnectionDialog::setPortName(CANCon::type pType, QString pPortName, QSt
             ui->cbPort->setCurrentText(pPortName);
             break;
         }
+        case CANCon::MY_FAKE_CAN:
+        {
+            int idx = ui->cbDeviceType->findText(pDriver);
+            if (idx < 0) idx = 0;
+            ui->cbDeviceType->setCurrentIndex(idx);
+
+            ui->cbPort->setCurrentText(pPortName);
+            break;
+        }
         default: {}
     }
 }
@@ -365,6 +396,8 @@ QString NewConnectionDialog::getPortName()
         return ui->cbPort->currentText();
     case CANCon::CANSERVER:
     case CANCon::CANLOGSERVER:
+        return ui->cbPort->currentText();
+    case CANCon::MY_FAKE_CAN:
         return ui->cbPort->currentText();
 
     default:
@@ -411,6 +444,7 @@ CANCon::type NewConnectionDialog::getConnectionType()
     if (ui->rbLawicel->isChecked()) return CANCon::LAWICEL;
     if (ui->rbCANserver->isChecked()) return CANCon::CANSERVER;
     if (ui->rbCanlogserver->isChecked()) return CANCon::CANLOGSERVER;
+    if (ui->rbMyFakeCan->isChecked()) return CANCon::MY_FAKE_CAN;
     qDebug() << "getConnectionType: error";
 
     return CANCon::NONE;
