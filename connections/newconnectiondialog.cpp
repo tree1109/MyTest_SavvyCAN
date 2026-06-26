@@ -31,6 +31,7 @@ NewConnectionDialog::NewConnectionDialog(QVector<QString>* gvretips, QVector<QSt
     connect(ui->rbCANserver, &QAbstractButton::clicked, this, &NewConnectionDialog::handleConnTypeChanged);
     connect(ui->rbCanlogserver, &QAbstractButton::clicked, this, &NewConnectionDialog::handleConnTypeChanged);
     connect(ui->rbMyFakeCan, &QAbstractButton::clicked, this, &NewConnectionDialog::handleConnTypeChanged);
+    connect(ui->rbTitanCAN, &QAbstractButton::clicked, this, &NewConnectionDialog::handleConnTypeChanged);
 
     connect(ui->cbDeviceType, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &NewConnectionDialog::handleDeviceTypeChanged);
     connect(ui->btnOK, &QPushButton::clicked, this, &NewConnectionDialog::handleCreateButton);
@@ -72,6 +73,7 @@ void NewConnectionDialog::handleConnTypeChanged()
     if (ui->rbCANserver->isChecked()) selectCANserver();
     if (ui->rbCanlogserver->isChecked()) selectCANlogserver();
     if (ui->rbMyFakeCan->isChecked()) selectMyFakeCan();
+    if (ui->rbTitanCAN->isChecked()) selectTitanCAN();
 }
 
 void NewConnectionDialog::handleDeviceTypeChanged()
@@ -289,6 +291,23 @@ void NewConnectionDialog::selectMyFakeCan()
     ui->cbPort->clear();
 }
 
+void NewConnectionDialog::selectTitanCAN()
+{
+    ui->lPort->setText("COM Port:");
+
+    ui->lblDeviceType->setHidden(true);
+    ui->cbDeviceType->setHidden(true);
+    ui->cbCANSpeed->setHidden(true);
+    ui->cbSerialSpeed->setHidden(true);
+    ui->lblCANSpeed->setHidden(true);
+    ui->lblSerialSpeed->setHidden(true);
+    ui->cbCanFd->setHidden(true);
+    ui->cbDataRate->setHidden(true);
+    ui->lblDataRate->setHidden(true);
+
+    ui->cbPort->clear();
+}
+
 void NewConnectionDialog::setPortName(CANCon::type pType, QString pPortName, QString pDriver)
 {
 
@@ -321,6 +340,8 @@ void NewConnectionDialog::setPortName(CANCon::type pType, QString pPortName, QSt
         case CANCon::MY_FAKE_CAN:
             ui->rbMyFakeCan->setChecked(true);
             break;
+        case CANCon::TITAN_CAN:
+            ui->rbTitanCAN->setChecked(true);
         default: {}
     }
 
@@ -379,6 +400,12 @@ void NewConnectionDialog::setPortName(CANCon::type pType, QString pPortName, QSt
             ui->cbPort->setCurrentText(pPortName);
             break;
         }
+        case CANCon::TITAN_CAN:
+        {
+
+            ui->cbPort->setCurrentText(pPortName);
+            break;
+        }
         default: {}
     }
 }
@@ -399,7 +426,8 @@ QString NewConnectionDialog::getPortName()
         return ui->cbPort->currentText();
     case CANCon::MY_FAKE_CAN:
         return ui->cbPort->currentText();
-
+    case CANCon::TITAN_CAN:
+        return ui->cbPort->currentText();
     default:
         qDebug() << "getPortName: can't get port";
     }
@@ -445,6 +473,7 @@ CANCon::type NewConnectionDialog::getConnectionType()
     if (ui->rbCANserver->isChecked()) return CANCon::CANSERVER;
     if (ui->rbCanlogserver->isChecked()) return CANCon::CANLOGSERVER;
     if (ui->rbMyFakeCan->isChecked()) return CANCon::MY_FAKE_CAN;
+    if (ui->rbTitanCAN->isChecked()) return CANCon::TITAN_CAN;
     qDebug() << "getConnectionType: error";
 
     return CANCon::NONE;

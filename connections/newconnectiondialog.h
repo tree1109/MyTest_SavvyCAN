@@ -51,6 +51,7 @@ private:
     void selectCANserver();
     void selectCANlogserver();
     void selectMyFakeCan();
+    void selectTitanCAN();
     bool isSerialBusAvailable();
     void setPortName(CANCon::type pType, QString pPortName, QString pDriver);
 };

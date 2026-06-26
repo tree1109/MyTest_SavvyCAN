@@ -8,6 +8,7 @@
 #include "canserver.h"
 #include "canlogserver.h"
 #include "MyFakeCan.h"
+#include "titancan.h"
 
 using namespace CANCon;
 
@@ -35,6 +36,8 @@ CANConnection* CanConFactory::create(type pType, QString pPortName, QString pDri
         return new CanLogServer(pPortName);
     case MY_FAKE_CAN:
         return new MyFakeCan(pPortName);
+    case TITAN_CAN:
+        return new TitanCAN(pPortName);
     default: {}
     }
 

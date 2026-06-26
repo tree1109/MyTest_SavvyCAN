@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>426</width>
-    <height>573</height>
+    <height>599</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -33,27 +33,6 @@
         </property>
        </widget>
       </item>
-      <item row="1" column="0">
-       <widget class="QRadioButton" name="rbRemote">
-        <property name="text">
-         <string>Network connection (GVRET)</string>
-        </property>
-       </widget>
-      </item>
-      <item row="2" column="0">
-       <widget class="QRadioButton" name="rbLawicel">
-        <property name="text">
-         <string>LAWICEL / SLCAN Serial</string>
-        </property>
-       </widget>
-      </item>
-      <item row="5" column="0">
-       <widget class="QRadioButton" name="rbMQTT">
-        <property name="text">
-         <string>MQTT Connection</string>
-        </property>
-       </widget>
-      </item>
       <item row="0" column="0">
        <widget class="QRadioButton" name="rbGVRET">
         <property name="text">
@@ -71,10 +50,10 @@
         </property>
        </widget>
       </item>
-      <item row="4" column="0">
-       <widget class="QRadioButton" name="rbKayak">
+      <item row="5" column="0">
+       <widget class="QRadioButton" name="rbMQTT">
         <property name="text">
-         <string>socketcand (SocketCAN over Ethernet)</string>
+         <string>MQTT Connection</string>
         </property>
        </widget>
       </item>
@@ -89,6 +68,34 @@
        <widget class="QRadioButton" name="rbMyFakeCan">
         <property name="text">
          <string>MyFakeCan</string>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="0">
+       <widget class="QRadioButton" name="rbRemote">
+        <property name="text">
+         <string>Network connection (GVRET)</string>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="0">
+       <widget class="QRadioButton" name="rbLawicel">
+        <property name="text">
+         <string>LAWICEL / SLCAN Serial</string>
+        </property>
+       </widget>
+      </item>
+      <item row="4" column="0">
+       <widget class="QRadioButton" name="rbKayak">
+        <property name="text">
+         <string>socketcand (SocketCAN over Ethernet)</string>
+        </property>
+       </widget>
+      </item>
+      <item row="9" column="0">
+       <widget class="QRadioButton" name="rbTitanCAN">
+        <property name="text">
+         <string>TitanCAN</string>
         </property>
        </widget>
       </item>

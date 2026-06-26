@@ -30,6 +30,7 @@ SOURCES += main.cpp\
     connections/canserver.cpp \
     connections/lawicel_serial.cpp \
     connections/mqtt_bus.cpp \
+    connections/titancan.cpp \
     dbc/dbcnodeduplicateeditor.cpp \
     framesenderobject.cpp \
     mqtt/qmqtt_client.cpp \
@@ -110,6 +111,7 @@ SOURCES += main.cpp\
     pcaplite.cpp
 
 HEADERS  += mainwindow.h \
+    Titan_USB_CAN/CAN_API.h \
     can_structs.h \
     canbridgewindow.h \
     canframemodel.h \
@@ -119,6 +121,7 @@ HEADERS  += mainwindow.h \
     connections/lawicel_serial.h \
     connections/socketcand.h \
     connections/mqtt_bus.h \
+    connections/titancan.h \
     dbc/dbcnodeduplicateeditor.h \
     dbc/dbcnoderebaseeditor.h \
     framesenderobject.h \
@@ -247,12 +250,17 @@ RESOURCES += \
     icons.qrc \
     images.qrc
 
+# For fix secction too big error.
+QMAKE_CXXFLAGS += -Wa,-mbig-obj
+# Link CAN_API lib.
+LIBS += $$PWD/libs/CAN_API.lib
+
 win32-msvc* {
-   LIBS += opengl32.lib
+    LIBS += opengl32.lib
 }
 
 win32-g++ {
-   LIBS += libopengl32
+    LIBS += libopengl32
 }
 
 unix {

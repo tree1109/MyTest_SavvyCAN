@@ -24,6 +24,7 @@ namespace CANCon {
         CANSERVER,
         CANLOGSERVER,
         MY_FAKE_CAN,
+        TITAN_CAN,
         NONE
     };
 }
