@@ -26,6 +26,9 @@ protected:
     virtual void piSuspend(bool pSuspend);
     virtual bool piSendFrame(const CommFrame& pFrame) ;
 
+private slots:
+    void checkFrame();
+
 private:
     void connectDevice();
     void disconnectDevice();
@@ -34,8 +37,17 @@ private:
 
     void sendDebug(const QString debugText);
 
+    bool isOpen() const;
+
+    void startReadFrameTimer();
+    void stopReadFrameTimer();
+
+    double getElapsedTimeS() const;
+
 private:
-    std::optional<int32_t> m_CanHandle = std::nullopt;
+    int32_t m_CanHandle = 0;
+    QTimer* m_ReadFrameTimer = nullptr;
+    QElapsedTimer* m_ElapsedTimer = nullptr;
 };
 
 #endif // TITANCAN_H

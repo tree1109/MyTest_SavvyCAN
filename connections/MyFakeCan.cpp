@@ -42,7 +42,12 @@ MyFakeCan::MyFakeCan(QString port)
 
 MyFakeCan::~MyFakeCan()
 {
-
+    delete m_pElapsedTimer;
+    delete m_pFakeBodyMessageTimer;
+    delete m_pFakeHeadMessageTimer;
+    m_pElapsedTimer = nullptr;
+    m_pFakeBodyMessageTimer = nullptr;
+    m_pFakeHeadMessageTimer = nullptr;
 }
 
 void MyFakeCan::piStarted()
@@ -218,8 +223,8 @@ void MyFakeCan::initTimer()
         m_pElapsedTimer = new QElapsedTimer();
         m_pElapsedTimer->start();
     }
-}
 
+}
 void MyFakeCan::startTimer()
 {
     if (m_pFakeBodyMessageTimer) m_pFakeBodyMessageTimer->start();
