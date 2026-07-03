@@ -34,7 +34,6 @@ private slots:
 private:
     void sendDebug(const QString debugText);
 
-    void initTimer();
     void startTimer();
     void stopTimer();
     double getElapsedSecond() const;
@@ -43,7 +42,6 @@ private:
     int m_Port = 114000;
 
     QElapsedTimer* m_pElapsedTimer = nullptr;
-
     QTimer* m_pFakeBodyMessageTimer = nullptr;
     QTimer* m_pFakeHeadMessageTimer = nullptr;
 };

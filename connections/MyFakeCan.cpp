@@ -54,7 +54,6 @@ void MyFakeCan::piStarted()
 {
     qDebug() << "MyFakeCon: " << "Connecting...";
 
-    initTimer();
     startTimer();
 }
 
@@ -200,35 +199,31 @@ void MyFakeCan::sendDebug(const QString debugText)
     debugOutput(debugText);
 }
 
-void MyFakeCan::initTimer()
+void MyFakeCan::startTimer()
 {
-    if (m_pFakeBodyMessageTimer == nullptr) {
-        m_pFakeBodyMessageTimer = new QTimer();
+    if (!m_pFakeBodyMessageTimer) {
+        m_pFakeBodyMessageTimer = new QTimer(this);
         m_pFakeBodyMessageTimer->setInterval(1000 / 33); // 33 hz
         m_pFakeBodyMessageTimer->setSingleShot(false); //keep ticking
         connect(m_pFakeBodyMessageTimer, &QTimer::timeout, this, &MyFakeCan::generateFakeBodyFrame);
     }
 
-    if (m_pFakeHeadMessageTimer == nullptr) {
-        m_pFakeHeadMessageTimer = new QTimer();
+    if (!m_pFakeHeadMessageTimer) {
+        m_pFakeHeadMessageTimer = new QTimer(this);
         m_pFakeHeadMessageTimer->setInterval(1000 / 100); // 100 hz
         m_pFakeHeadMessageTimer->setSingleShot(false); //keep ticking
         connect(m_pFakeHeadMessageTimer, &QTimer::timeout, this, &MyFakeCan::generateFakeHeadFrame);
     }
 
-    if (m_pElapsedTimer != nullptr) {
-        m_pElapsedTimer->restart();
-    }
-    else {
+    if (!m_pElapsedTimer) {
         m_pElapsedTimer = new QElapsedTimer();
-        m_pElapsedTimer->start();
     }
 
-}
-void MyFakeCan::startTimer()
-{
     if (m_pFakeBodyMessageTimer) m_pFakeBodyMessageTimer->start();
     if (m_pFakeHeadMessageTimer) m_pFakeHeadMessageTimer->start();
+    if (m_pElapsedTimer) {
+        m_pElapsedTimer->start();
+    }
 }
 
 void MyFakeCan::stopTimer()

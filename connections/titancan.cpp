@@ -96,16 +96,17 @@ bool TitanCAN::piSendFrame(const CommFrame &pFrame)
         {
             const auto& rPayload = pFrame.payload();
             const int maxSize = qMin(rPayload.size(), 8);
+
             for (int i = 0; i < maxSize; ++i){
                 message.Data[i] = rPayload[i];
             }
+            message.Size = maxSize;
         }
 
-        message.Size = pFrame.payload().size();
+        message.Flags |= pFrame.hasExtendedFrameFormat() ? CAN_FLAGS_EXTENDED : CAN_FLAGS_STANDARD;
+        message.Flags |= pFrame.frameType() == CommFrame::RemoteRequestFrame ? CAN_FLAGS_REMOTE : 0;
 
-        message.Flags = CAN_FLAGS_STANDARD;
-
-        message.Timestamp = getElapsedTimeS() * 1000 ;
+        message.Timestamp = 0;
     }
 
     const TCAN_STATUS status = CAN_Write(m_CanHandle, &message );
@@ -275,23 +276,22 @@ bool TitanCAN::isOpen() const
 
 void TitanCAN::startReadFrameTimer()
 {
-    if (m_ReadFrameTimer == nullptr) {
+    if (!m_ReadFrameTimer) {
         m_ReadFrameTimer = new QTimer(this);
-        m_ReadFrameTimer->setInterval(1000 / 100);
+        m_ReadFrameTimer->setInterval(10);
         m_ReadFrameTimer->setSingleShot(false);
-        m_ReadFrameTimer->start();
-
         connect(m_ReadFrameTimer, &QTimer::timeout, this, &TitanCAN::checkFrame);
     }
-    else {
+    if (!m_ElapsedTimer) {
+        m_ElapsedTimer = new QElapsedTimer();
+    }
+
+
+    if (m_ReadFrameTimer) {
         m_ReadFrameTimer->start();
     }
 
-    if (m_ElapsedTimer == nullptr) {
-        m_ElapsedTimer = new QElapsedTimer();
-        m_ElapsedTimer->start();
-    }
-    else {
+    if (m_ElapsedTimer) {
         m_ElapsedTimer->start();
     }
 }
