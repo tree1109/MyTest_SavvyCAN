@@ -137,21 +137,31 @@ void TitanCAN::connectDevice()
         disconnectDevice();
     }
 
-    // Com port.
-    const auto portStr = QString("COM%1").arg(getPort()).toStdString();
-    char* const pPortStr = const_cast<char*>(portStr.c_str());
-
-    // Bitrate.
+    // Get data.
     CANBus busConfig;
     getBusConfig(0, busConfig);
-    const auto bitrateStr = QString("%1").arg(GetTitanCANBitrate(busConfig.getDataRate())).toStdString();
-    char* const pBitrateStr = const_cast<char*>(bitrateStr.c_str());
+    const int32_t bitrate = GetTitanCANBitrate(busConfig.getDataRate());
+    const bool bListenOnly = busConfig.isListenOnly();
+    const uint32_t acceptanceCode = 0x1fffffff;
+    const uint32_t acceptanceMask = 0x00000000;
 
-    char* const ACC_CODE = "1FFFFFFF";
-    char* const ACCEPTANCE_MASK = "00000000";
-    constexpr auto DEFAULT_CAN_MODE = LoopBack;
+    // Prepare data.
+    const auto comPortStr = QString("COM%1").arg(getPort()).toStdString();
+    const auto bitrateStr = QString("%1").arg(bitrate).toStdString();
+    const auto acceptanceCodeStr = QString("%1").arg(acceptanceCode, 8, 16, QChar('0')).toUpper().toStdString();
+    const auto acceptanceMaskStr = QString("%1").arg(acceptanceMask, 8, 16, QChar('0')).toUpper().toStdString();
+    const void* const timestampFlag = CAN_TIMESTAMP_ON;
+    const auto mode = bListenOnly ? ListenOnly : Normal;
+    // const auto mode = LoopBack; // Test only.
 
-    const TCAN_HANDLE canHandle = CAN_Open(pPortStr, pBitrateStr, ACC_CODE, ACCEPTANCE_MASK, CAN_TIMESTAMP_ON, DEFAULT_CAN_MODE);
+    const TCAN_HANDLE canHandle = CAN_Open(
+        const_cast<char*>(comPortStr.c_str()),
+        const_cast<char*>(bitrateStr.c_str()),
+        const_cast<char*>(acceptanceCodeStr.c_str()),
+        const_cast<char*>(acceptanceMaskStr.c_str()),
+        const_cast<void*>(timestampFlag),
+        mode);
+
     if (canHandle > 0) {
         m_CanHandle = canHandle;
         setStatus(CANCon::CONNECTED);
