@@ -62,6 +62,8 @@ ConnectionWindow::ConnectionWindow(QWidget *parent) :
     connect(ui->btnMoveUp, &QPushButton::clicked, this, &ConnectionWindow::moveConnUp);
     connect(ui->btnMoveDown, &QPushButton::clicked, this, &ConnectionWindow::moveConnDown);
 
+    ui->cbBusSpeed->addItem("10000");
+    ui->cbBusSpeed->addItem("20000");
     ui->cbBusSpeed->addItem("33333");
     ui->cbBusSpeed->addItem("50000");
     ui->cbBusSpeed->addItem("83333");
