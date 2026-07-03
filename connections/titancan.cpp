@@ -21,7 +21,7 @@ namespace {
 }
 
 TitanCAN::TitanCAN(QString comPort)
-    : CANConnection(comPort, "Titan", CANCon::TITAN_CAN, 0, 0, false, 1000, 1, 4000, true)
+    : CANConnection(comPort, "Titan", CANCon::TITAN_CAN, 0, 0, false, 0, 1, 4000, true)
 
 {
     sendDebug("TitanCAN()");
@@ -29,7 +29,7 @@ TitanCAN::TitanCAN(QString comPort)
     CANBus bus_info;
     bus_info.setActive(true);
     bus_info.setListenOnly(true);
-    bus_info.setSpeed(1000);
+    bus_info.setSpeed(10000);
     setBusConfig(0, bus_info);
 }
 
@@ -255,9 +255,11 @@ void TitanCAN::readFrame()
                 frame_p->setReceived(true);
 
                 // Timestamp.
-                {
-                    const auto convertTimestamp = CommFrame::TimeStamp::fromMicroSeconds(message.Timestamp * 1000);
-                    frame_p->setTimeStamp(convertTimestamp);
+                if (useSystemTime) {
+                    frame_p->setTimeStamp(CommFrame::TimeStamp::fromMicroSeconds(QDateTime::currentMSecsSinceEpoch() * 1000ul));
+                }
+                else {
+                    frame_p->setTimeStamp(CommFrame::TimeStamp(0, message.Timestamp * 1000ul));
                 }
 
                 checkTargettedFrame(*frame_p);

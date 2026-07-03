@@ -98,6 +98,8 @@ bool MyFakeCan::piSendFrame(const CommFrame& pFrame)
     if(frame_p)
     {
         *frame_p = pFrame;
+        frame_p->setReceived(true);
+
         getQueue().queue();
     }
 
@@ -148,7 +150,7 @@ void MyFakeCan::generateFakeBodyFrame()
         frame_p->setFrameId(100);
         frame_p->setFrameType(CommFrame::CANDataFrame);
         frame_p->setReceived(true);
-        frame_p->setTimeStamp(CommFrame::TimeStamp::fromMicroSeconds(QDateTime::currentMSecsSinceEpoch()));
+        frame_p->setTimeStamp(CommFrame::TimeStamp::fromMicroSeconds(QDateTime::currentMSecsSinceEpoch() * 1000ul));
 
         checkTargettedFrame(*frame_p);
 
@@ -184,7 +186,7 @@ void MyFakeCan::generateFakeHeadFrame()
         frame_p->setFrameId(200);
         frame_p->setFrameType(CommFrame::CANDataFrame);
         frame_p->setReceived(true);
-        frame_p->setTimeStamp(CommFrame::TimeStamp::fromMicroSeconds(QDateTime::currentMSecsSinceEpoch()));
+        frame_p->setTimeStamp(CommFrame::TimeStamp::fromMicroSeconds(QDateTime::currentMSecsSinceEpoch() * 1000ul));
 
         checkTargettedFrame(*frame_p);
 
